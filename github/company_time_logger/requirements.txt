@@ -1,0 +1,15 @@
+certifi==2019.11.28
+chardet==3.0.4
+colorama==0.4.3
+configparser==4.0.2
+crayons==0.3.0
+get==2019.4.13
+idna==2.8
+post==2019.4.13
+public==2019.4.13
+query-string==2019.4.13
+request==2019.4.13
+requests==2.22.0
+selenium==3.141.0
+urllib3==1.25.8
+webdriver-manager==2.3.0

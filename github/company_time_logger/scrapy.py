@@ -65,7 +65,7 @@ class IntimeCalc:
         for index, x in enumerate(date_objects):
             if index + 1 < len_dates:
                 diff = date_objects[index + 1] - x
-                if index % 2 != 0:
+                if index % 2 == 0:
                     print(date_objects[index + 1] ,'   ===  ',x)
                     print('In times>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',diff.total_seconds()/60)
                     total_intime += diff.total_seconds()

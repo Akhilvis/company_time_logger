@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 today = date.today()
 # today_date = int(today.strftime("%d"))
-today_date = 24
+today_date = 3
 punch_list = []
 
 from selenium import webdriver
@@ -31,13 +31,20 @@ class IntimeCalc:
 
         iframe = driver.find_elements_by_tag_name('iframe')[0]
         driver.switch_to.frame(iframe)
-        driver.implicitly_wait(10)
+        driver.implicitly_wait(50)
         table = driver.find_elements_by_tag_name('table')[3]
-        tr_list = table.findElements(By.tagName("tr"))
-        print('length of raw list ...',len(tr_list))
-        for tr in tr_list:
-            date_string = tr.text
-            print(9999,date_string)
+        # tr_list = table.find_elements_by_css_selector(
+        #     '#dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child(3) > td:nth-child(1)')
+        for i in range(20):
+            print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   ',i )
+            selector = '#dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child('+ str(
+                i + 1) + ') > td:nth-child(1)'
+            # dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child(2)
+            td = table.find_element_by_css_selector(selector)
+            # print(td.text)
+
+            date_string = td.text
+            print(9999, date_string)
             try:
                 date = int(date_string.split('-')[0])
             except:
@@ -50,22 +57,24 @@ class IntimeCalc:
 
         return punch_list
 
-
-def calculate_intime(self, todays_punch_list):
-    todays_punch_list = list(reversed(todays_punch_list))
-
-    print(todays_punch_list)
-    date_objects = list(reversed(date_objects))
-    len_dates = len(date_objects)
-    for index,x in enumerate(date_objects):
-    	if index+1 < len_dates:
-			diff = date_objects[index+1] - x
-			if index %2 != 0:
-        		total_intime += diff.total_seconds()
-      		else:
-        		total_outitme += diff.total_seconds()
+    def calculate_intime(self, todays_punch_list):
+        total_intime , total_outitme = 0, 0
+        date_objects = list(reversed(todays_punch_list))
+        print(000000, date_objects)
+        len_dates = len(date_objects)
+        for index, x in enumerate(date_objects):
+            if index + 1 < len_dates:
+                diff = date_objects[index + 1] - x
+                if index % 2 != 0:
+                    print(date_objects[index + 1] ,'   ===  ',x)
+                    print('In times>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',diff.total_seconds()/60)
+                    total_intime += diff.total_seconds()
+                else:
+                    total_outitme += diff.total_seconds()
+        return total_intime/360, total_outitme/360
 
 time_cal_obj = IntimeCalc()
 todays_punch_list = time_cal_obj.smartoffice_login()
-intime = time_cal_obj.calculate_intime(todays_punch_list)
-# print('==========', todays_punch_list)
+total_intime, total_outitme = time_cal_obj.calculate_intime(todays_punch_list)
+print('====total_intime======', total_intime)
+print('=====total_outitme=====', total_outitme)

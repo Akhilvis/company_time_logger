@@ -1,8 +1,9 @@
 from datetime import date, datetime
+import smtplib
 
 today = date.today()
-# today_date = int(today.strftime("%d"))
-today_date = 4
+today_date = int(today.strftime("%d"))
+# today_date = 5
 punch_list = []
 
 from selenium import webdriver
@@ -12,7 +13,8 @@ chrome_options = Options()
 # chrome_options.add_argument('--headless')
 chrome_options.add_argument('--no-sandbox')
 chrome_options.add_argument('--disable-dev-shm-usage')
-driver = webdriver.Chrome('/home/akhilvis/Documents/smartoffice/company_time_logger/chromedriver', chrome_options=chrome_options)
+# driver = webdriver.Chrome('/home/akhilvis/Documents/smartoffice/company_time_logger/chromedriver', chrome_options=chrome_options)
+driver = webdriver.Chrome('/home/akhil/Documents/company_time_logger/chromedriver', chrome_options=chrome_options)
 
 url = "http://www.so365.in/Goodbits_ESS"
 
@@ -38,14 +40,14 @@ class IntimeCalc:
         for i in range(20):
             selector = '#dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child('+ str(
                 i + 1) + ') > td:nth-child(1)'
-            print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   ', selector )
+            # print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   ', selector )
             # dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child(1) > td:nth-child(1)
             
             td = table.find_element_by_css_selector(selector)
             # print(td.text)
 
             date_string = td.text
-            print(9999, date_string)
+            # print(9999, date_string)
             try:
                 date = int(date_string.split('-')[0])
             except:
@@ -55,28 +57,63 @@ class IntimeCalc:
                 date_obj = datetime.strptime(date_string_modified[0] + ' ' + date_string_modified[1],
                                              '%d-%b-%Y %H:%M:%S')
                 punch_list.append(date_obj)
-
+        last_element = '#dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child(1) > td:nth-child(1)'
+        date_string = table.find_element_by_css_selector(last_element).text
+        date_string_modified = date_string.split()
+        date_obj = datetime.strptime(date_string_modified[0] + ' ' + date_string_modified[1],
+                                     '%d-%b-%Y %H:%M:%S')
+        punch_list.insert(0, date_obj)
         return punch_list
 
     def calculate_intime(self, todays_punch_list):
         total_intime , total_outitme = 0, 0
         date_objects = list(reversed(todays_punch_list))
-        print(000000, date_objects)
+        print(888888888888, date_objects)
         len_dates = len(date_objects)
         for index, x in enumerate(date_objects):
             if index + 1 < len_dates:
                 diff = date_objects[index + 1] - x
                 if index % 2 == 0:
-                    print(date_objects[index + 1] ,'   ===  ',x)
+                    # print(date_objects[index + 1] ,'   ===  ',x)
                     print('In times>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',diff.total_seconds()/60)
-                    total_intime += diff.total_seconds()/60
+                    total_intime += diff.total_seconds()
                     print('>>>>>>>>>>total_intime>>>>>>>>>', total_intime)
                 else:
-                    total_outitme += diff.total_seconds()/60
-        return total_intime/60, total_outitme/60
+                    total_outitme += diff.total_seconds()
+        return total_intime, total_outitme
+
+    def convert_hours(self, seconds):
+        min, sec = divmod(seconds, 60)
+        hour, min = divmod(min, 60)
+        return "%d:%02d:%02d" % (hour, min, sec)
+
+    def add_time(self, seconds, current_time = 6):
+        min, sec = divmod(seconds, 60)
+        hour, min = divmod(min, 60)
+        current_time += hour
+        return "%d:%02d:%02d" % (current_time, min, sec)
+
+
+    def send_mail(self):
+        pass
 
 time_cal_obj = IntimeCalc()
 todays_punch_list = time_cal_obj.smartoffice_login()
+print('todays_punch_list>>>>>>>>>>>>>>>>>..',todays_punch_list)
 total_intime, total_outitme = time_cal_obj.calculate_intime(todays_punch_list)
-print('====total_intime======', total_intime)
-print('=====total_outitme=====', total_outitme)
+print('====total_intime======', time_cal_obj.convert_hours(total_intime))
+print('=====total_outitme=====', time_cal_obj.convert_hours(total_outitme))
+net_in_time_seconds = total_intime - (total_outitme-3600)
+net_in_time = time_cal_obj.convert_hours(net_in_time_seconds)
+extra_in_time_required = time_cal_obj.convert_hours(28800 - net_in_time_seconds)
+last_out_punch_time = time_cal_obj.add_time(28800 - net_in_time_seconds)
+
+print('====================================')
+print(total_intime)
+print((total_outitme))
+print((total_outitme-3600))
+print(total_intime - (total_outitme-3600))
+print('====================================')
+print('net_in_time>>>>>>>>>>>>>>>>>>>>>>>  ',  net_in_time)
+print('extra_in_time_required>>>>>>>>>>>>>>>>>>>>>>>  ',  extra_in_time_required)
+print('last_out_punch_time>>>>>>>>>>>>>>>>>>>>>>>  ',  last_out_punch_time)

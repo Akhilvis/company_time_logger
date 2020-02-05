@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 today = date.today()
 # today_date = int(today.strftime("%d"))
-today_date = 3
+today_date = 4
 punch_list = []
 
 from selenium import webdriver
@@ -12,7 +12,7 @@ chrome_options = Options()
 # chrome_options.add_argument('--headless')
 chrome_options.add_argument('--no-sandbox')
 chrome_options.add_argument('--disable-dev-shm-usage')
-driver = webdriver.Chrome('/home/akhil/Documents/company_time_logger/chromedriver', chrome_options=chrome_options)
+driver = webdriver.Chrome('/home/akhilvis/Documents/smartoffice/company_time_logger/chromedriver', chrome_options=chrome_options)
 
 url = "http://www.so365.in/Goodbits_ESS"
 
@@ -36,10 +36,11 @@ class IntimeCalc:
         # tr_list = table.find_elements_by_css_selector(
         #     '#dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child(3) > td:nth-child(1)')
         for i in range(20):
-            print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   ',i )
             selector = '#dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child('+ str(
                 i + 1) + ') > td:nth-child(1)'
-            # dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child(2)
+            print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   ', selector )
+            # dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child(1) > td:nth-child(1)
+            
             td = table.find_element_by_css_selector(selector)
             # print(td.text)
 
@@ -68,10 +69,11 @@ class IntimeCalc:
                 if index % 2 == 0:
                     print(date_objects[index + 1] ,'   ===  ',x)
                     print('In times>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',diff.total_seconds()/60)
-                    total_intime += diff.total_seconds()
+                    total_intime += diff.total_seconds()/60
+                    print('>>>>>>>>>>total_intime>>>>>>>>>', total_intime)
                 else:
-                    total_outitme += diff.total_seconds()
-        return total_intime/360, total_outitme/360
+                    total_outitme += diff.total_seconds()/60
+        return total_intime/60, total_outitme/60
 
 time_cal_obj = IntimeCalc()
 todays_punch_list = time_cal_obj.smartoffice_login()

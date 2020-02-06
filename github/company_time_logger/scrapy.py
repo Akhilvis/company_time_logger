@@ -1,6 +1,6 @@
 from datetime import date, datetime
 import smtplib
-
+import datetime as main_datetime
 today = date.today()
 today_date = int(today.strftime("%d"))
 # today_date = 5
@@ -38,11 +38,11 @@ class IntimeCalc:
         # tr_list = table.find_elements_by_css_selector(
         #     '#dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child(3) > td:nth-child(1)')
         for i in range(20):
-            selector = '#dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child('+ str(
+            selector = '#dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child(' + str(
                 i + 1) + ') > td:nth-child(1)'
             # print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   ', selector )
             # dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child(1) > td:nth-child(1)
-            
+
             td = table.find_element_by_css_selector(selector)
             # print(td.text)
 
@@ -60,13 +60,13 @@ class IntimeCalc:
         last_element = '#dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child(1) > td:nth-child(1)'
         date_string = table.find_element_by_css_selector(last_element).text
         date_string_modified = date_string.split()
-        date_obj = datetime.strptime(date_string_modified[0] + ' ' + date_string_modified[1],
-                                     '%d-%b-%Y %H:%M:%S')
-        punch_list.insert(0, date_obj)
+        self.last_date_obj = datetime.strptime(date_string_modified[0] + ' ' + date_string_modified[1],
+                                               '%d-%b-%Y %H:%M:%S')
+        punch_list.insert(0, self.last_date_obj)
         return punch_list
 
     def calculate_intime(self, todays_punch_list):
-        total_intime , total_outitme = 0, 0
+        total_intime, total_outitme = 0, 0
         date_objects = list(reversed(todays_punch_list))
         print(888888888888, date_objects)
         len_dates = len(date_objects)
@@ -75,7 +75,7 @@ class IntimeCalc:
                 diff = date_objects[index + 1] - x
                 if index % 2 == 0:
                     # print(date_objects[index + 1] ,'   ===  ',x)
-                    print('In times>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',diff.total_seconds()/60)
+                    print('In times>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', diff.total_seconds() / 60)
                     total_intime += diff.total_seconds()
                     print('>>>>>>>>>>total_intime>>>>>>>>>', total_intime)
                 else:
@@ -87,33 +87,46 @@ class IntimeCalc:
         hour, min = divmod(min, 60)
         return "%d:%02d:%02d" % (hour, min, sec)
 
-    def add_time(self, seconds, current_time = 6):
+    def add_time(self, seconds):
         min, sec = divmod(seconds, 60)
         hour, min = divmod(min, 60)
-        current_time += hour
-        return "%d:%02d:%02d" % (current_time, min, sec)
 
+        last_out_time_calculated = main_datetime.timedelta(hours=self.last_date_obj.hour, minutes=self.last_date_obj.minute,
+                               seconds=self.last_date_obj.second) + main_datetime.timedelta(hours=hour, minutes=min,
+                                                                                       seconds=0)
+        return last_out_time_calculated
 
     def send_mail(self):
-        pass
+
+        sender_email = "akhilviswam000@gmail.com"
+        rec_email = "akhil@goodbits.in"
+        password = "Soupernika@123"
+        message = "Hey, this was sent using python"
+
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(sender_email, password)
+        print("Login success")
+        server.sendmail(sender_email, rec_email, message)
+        print("Email has been sent to ", rec_email)
+
 
 time_cal_obj = IntimeCalc()
 todays_punch_list = time_cal_obj.smartoffice_login()
-print('todays_punch_list>>>>>>>>>>>>>>>>>..',todays_punch_list)
+print('todays_punch_list>>>>>>>>>>>>>>>>>..', todays_punch_list)
 total_intime, total_outitme = time_cal_obj.calculate_intime(todays_punch_list)
-print('====total_intime======', time_cal_obj.convert_hours(total_intime))
-print('=====total_outitme=====', time_cal_obj.convert_hours(total_outitme))
-net_in_time_seconds = total_intime - (total_outitme-3600)
+
+net_in_time_seconds = total_intime - (total_outitme - 3600)
 net_in_time = time_cal_obj.convert_hours(net_in_time_seconds)
 extra_in_time_required = time_cal_obj.convert_hours(28800 - net_in_time_seconds)
 last_out_punch_time = time_cal_obj.add_time(28800 - net_in_time_seconds)
 
-print('====================================')
-print(total_intime)
-print((total_outitme))
-print((total_outitme-3600))
-print(total_intime - (total_outitme-3600))
-print('====================================')
-print('net_in_time>>>>>>>>>>>>>>>>>>>>>>>  ',  net_in_time)
-print('extra_in_time_required>>>>>>>>>>>>>>>>>>>>>>>  ',  extra_in_time_required)
-print('last_out_punch_time>>>>>>>>>>>>>>>>>>>>>>>  ',  last_out_punch_time)
+
+print('====total_intime======', time_cal_obj.convert_hours(total_intime))
+print('=====total_outitme=====', time_cal_obj.convert_hours(total_outitme))
+print('net_in_time>>>>>>>>>>>>>>>>>>>>>>>  ', net_in_time)
+print('extra_in_time_required>>>>>>>>>>>>>>>>>>>>>>>  ', extra_in_time_required)
+print('last_out_punch_time>>>>>>>>>>>>>>>>>>>>>>>  ', last_out_punch_time)
+
+
+time_cal_obj.send_mail()

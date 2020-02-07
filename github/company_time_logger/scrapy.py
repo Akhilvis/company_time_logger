@@ -1,9 +1,9 @@
 from datetime import date, datetime
 import smtplib
-
+import datetime as main_datetime
 today = date.today()
-# today_date = int(today.strftime("%d"))
-today_date = 6
+today_date = int(today.strftime("%d"))
+# today_date = 5
 punch_list = []
 
 from selenium import webdriver
@@ -13,9 +13,8 @@ chrome_options = Options()
 # chrome_options.add_argument('--headless')
 chrome_options.add_argument('--no-sandbox')
 chrome_options.add_argument('--disable-dev-shm-usage')
-driver = webdriver.Chrome('/home/akhilvis/Documents/smartoffice/company_time_logger/chromedriver',
-                          chrome_options=chrome_options)
-# driver = webdriver.Chrome('/home/akhil/Documents/company_time_logger/chromedriver', chrome_options=chrome_options)
+# driver = webdriver.Chrome('/home/akhilvis/Documents/smartoffice/company_time_logger/chromedriver', chrome_options=chrome_options)
+driver = webdriver.Chrome('/home/akhil/Documents/company_time_logger/chromedriver', chrome_options=chrome_options)
 
 url = "http://www.so365.in/Goodbits_ESS"
 
@@ -90,48 +89,46 @@ class IntimeCalc:
         hour, min = divmod(min, 60)
         return "%d:%02d:%02d" % (hour, min, sec)
 
-    def add_time(self, seconds, current_time=6):
+    def add_time(self, seconds):
         min, sec = divmod(seconds, 60)
         hour, min = divmod(min, 60)
-        current_time += hour
-        return "%d:%02d:%02d" % (current_time, min, sec)
+
+        last_out_time_calculated = main_datetime.timedelta(hours=self.last_date_obj.hour, minutes=self.last_date_obj.minute,
+                               seconds=self.last_date_obj.second) + main_datetime.timedelta(hours=hour, minutes=min,
+                                                                                       seconds=0)
+        return last_out_time_calculated
 
     def send_mail(self):
-        import yagmail
-        yag = yagmail.SMTP("akhil@goodbits.in", "Souparnika@123")
-        yag.send("anothername@address.com", "An Email Alert", "The body of the email is here")
+
+        sender_email = "akhilviswam000@gmail.com"
+        rec_email = "akhil@goodbits.in"
+        password = "Soupernika@123"
+        message = "Hey, this was sent using python"
+
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(sender_email, password)
+        print("Login success")
+        server.sendmail(sender_email, rec_email, message)
+        print("Email has been sent to ", rec_email)
 
 
 time_cal_obj = IntimeCalc()
-# todays_punch_list = time_cal_obj.smartoffice_login()
-# print('todays_punch_list>>>>>>>>>>>>>>>>>..', todays_punch_list)
-# total_intime, total_outitme = time_cal_obj.calculate_intime(todays_punch_list)
-# print('total_intime.......', time_cal_obj.convert_hours(total_intime))
-# print('total_outitme.......', time_cal_obj.convert_hours(total_outitme))
-#
-# net_in_time_seconds = total_intime - (total_outitme - 3600)
-# net_in_time = time_cal_obj.convert_hours(net_in_time_seconds)
-# extra_in_time_required = time_cal_obj.convert_hours(28800 - net_in_time_seconds)
-# last_out_punch_time = time_cal_obj.add_time(28800 - net_in_time_seconds)
+todays_punch_list = time_cal_obj.smartoffice_login()
+print('todays_punch_list>>>>>>>>>>>>>>>>>..', todays_punch_list)
+total_intime, total_outitme = time_cal_obj.calculate_intime(todays_punch_list)
 
-# print('net_in_time>>>>>>>>>>>>>>>>>>>>>>>  ', net_in_time)
-# print('extra_in_time_required>>>>>>>>>>>>>>>>>>>>>>>  ', extra_in_time_required)
-# print('last_out_punch_time>>>>>>>>>>>>>>>>>>>>>>>  ', last_out_punch_time)
+net_in_time_seconds = total_intime - (total_outitme - 3600)
+net_in_time = time_cal_obj.convert_hours(net_in_time_seconds)
+extra_in_time_required = time_cal_obj.convert_hours(28800 - net_in_time_seconds)
+last_out_punch_time = time_cal_obj.add_time(28800 - net_in_time_seconds)
 
-# time_cal_obj.send_mail()
 
-for user in user_accounts:
-    todays_punch_list = time_cal_obj.smartoffice_login(user[0], user[1])
-    print('todays_punch_list>>>>>>>>>>>>>>>>>..', todays_punch_list)
-    total_intime, total_outitme = time_cal_obj.calculate_intime(todays_punch_list)
-    print('total_intime.......', time_cal_obj.convert_hours(total_intime))
-    print('total_outitme.......', time_cal_obj.convert_hours(total_outitme))
+print('====total_intime======', time_cal_obj.convert_hours(total_intime))
+print('=====total_outitme=====', time_cal_obj.convert_hours(total_outitme))
+print('net_in_time>>>>>>>>>>>>>>>>>>>>>>>  ', net_in_time)
+print('extra_in_time_required>>>>>>>>>>>>>>>>>>>>>>>  ', extra_in_time_required)
+print('last_out_punch_time>>>>>>>>>>>>>>>>>>>>>>>  ', last_out_punch_time)
 
-    net_in_time_seconds = total_intime - (total_outitme - 3600)
-    net_in_time = time_cal_obj.convert_hours(net_in_time_seconds)
-    extra_in_time_required = time_cal_obj.convert_hours(28800 - net_in_time_seconds)
-    last_out_punch_time = time_cal_obj.add_time(28800 - net_in_time_seconds)
 
-    print('net_in_time>>>>>>>>>>>>>>>>>>>>>>>  ', net_in_time)
-    print('extra_in_time_required>>>>>>>>>>>>>>>>>>>>>>>  ', extra_in_time_required)
-    print('last_out_punch_time>>>>>>>>>>>>>>>>>>>>>>>  ', last_out_punch_time)
+time_cal_obj.send_mail()

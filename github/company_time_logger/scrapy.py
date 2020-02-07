@@ -114,21 +114,38 @@ class IntimeCalc:
 
 
 time_cal_obj = IntimeCalc()
-todays_punch_list = time_cal_obj.smartoffice_login()
-print('todays_punch_list>>>>>>>>>>>>>>>>>..', todays_punch_list)
-total_intime, total_outitme = time_cal_obj.calculate_intime(todays_punch_list)
+# todays_punch_list = time_cal_obj.smartoffice_login()
+# print('todays_punch_list>>>>>>>>>>>>>>>>>..', todays_punch_list)
+# total_intime, total_outitme = time_cal_obj.calculate_intime(todays_punch_list)
+#
+# net_in_time_seconds = total_intime - (total_outitme - 3600)
+# net_in_time = time_cal_obj.convert_hours(net_in_time_seconds)
+# extra_in_time_required = time_cal_obj.convert_hours(28800 - net_in_time_seconds)
+# last_out_punch_time = time_cal_obj.add_time(28800 - net_in_time_seconds)
+#
+#
+# print('====total_intime======', time_cal_obj.convert_hours(total_intime))
+# print('=====total_outitme=====', time_cal_obj.convert_hours(total_outitme))
+# print('net_in_time>>>>>>>>>>>>>>>>>>>>>>>  ', net_in_time)
+# print('extra_in_time_required>>>>>>>>>>>>>>>>>>>>>>>  ', extra_in_time_required)
+# print('last_out_punch_time>>>>>>>>>>>>>>>>>>>>>>>  ', last_out_punch_time)
 
-net_in_time_seconds = total_intime - (total_outitme - 3600)
-net_in_time = time_cal_obj.convert_hours(net_in_time_seconds)
-extra_in_time_required = time_cal_obj.convert_hours(28800 - net_in_time_seconds)
-last_out_punch_time = time_cal_obj.add_time(28800 - net_in_time_seconds)
+
+# time_cal_obj.send_mail()
+
+for user in user_accounts:
+    todays_punch_list = time_cal_obj.smartoffice_login(user[0], user[1])
+    print('todays_punch_list>>>>>>>>>>>>>>>>>..', todays_punch_list)
+    total_intime, total_outitme = time_cal_obj.calculate_intime(todays_punch_list)
+
+    net_in_time_seconds = total_intime - (total_outitme - 3600)
+    net_in_time = time_cal_obj.convert_hours(net_in_time_seconds)
+    extra_in_time_required = time_cal_obj.convert_hours(28800 - net_in_time_seconds)
+    last_out_punch_time = time_cal_obj.add_time(28800 - net_in_time_seconds)
 
 
-print('====total_intime======', time_cal_obj.convert_hours(total_intime))
-print('=====total_outitme=====', time_cal_obj.convert_hours(total_outitme))
-print('net_in_time>>>>>>>>>>>>>>>>>>>>>>>  ', net_in_time)
-print('extra_in_time_required>>>>>>>>>>>>>>>>>>>>>>>  ', extra_in_time_required)
-print('last_out_punch_time>>>>>>>>>>>>>>>>>>>>>>>  ', last_out_punch_time)
-
-
-time_cal_obj.send_mail()
+    print('====total_intime======', time_cal_obj.convert_hours(total_intime))
+    print('=====total_outitme=====', time_cal_obj.convert_hours(total_outitme))
+    print('net_in_time>>>>>>>>>>>>>>>>>>>>>>>  ', net_in_time)
+    print('extra_in_time_required>>>>>>>>>>>>>>>>>>>>>>>  ', extra_in_time_required)
+    print('last_out_punch_time>>>>>>>>>>>>>>>>>>>>>>>  ', last_out_punch_time)

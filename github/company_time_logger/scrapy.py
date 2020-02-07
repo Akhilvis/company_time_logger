@@ -13,8 +13,8 @@ chrome_options = Options()
 # chrome_options.add_argument('--headless')
 chrome_options.add_argument('--no-sandbox')
 chrome_options.add_argument('--disable-dev-shm-usage')
-# driver = webdriver.Chrome('/home/akhilvis/Documents/smartoffice/company_time_logger/chromedriver', chrome_options=chrome_options)
-driver = webdriver.Chrome('/home/akhil/Documents/company_time_logger/chromedriver', chrome_options=chrome_options)
+driver = webdriver.Chrome('/home/akhilvis/Documents/smartoffice/company_time_logger/chromedriver', chrome_options=chrome_options)
+# driver = webdriver.Chrome('/home/akhil/Documents/company_time_logger/chromedriver', chrome_options=chrome_options)
 
 url = "http://www.so365.in/Goodbits_ESS"
 
@@ -62,9 +62,9 @@ class IntimeCalc:
         last_element = '#dg_EmployeeSwipeDetails > div.k-grid-content.k-auto-scrollable > table > tbody > tr:nth-child(1) > td:nth-child(1)'
         date_string = table.find_element_by_css_selector(last_element).text
         date_string_modified = date_string.split()
-        date_obj = datetime.strptime(date_string_modified[0] + ' ' + date_string_modified[1],
+        self.last_date_obj = datetime.strptime(date_string_modified[0] + ' ' + date_string_modified[1],
                                      '%d-%b-%Y %H:%M:%S')
-        punch_list.insert(0, date_obj)
+        punch_list.insert(0, self.last_date_obj)
         return punch_list
 
     def calculate_intime(self, todays_punch_list):
@@ -114,24 +114,6 @@ class IntimeCalc:
 
 
 time_cal_obj = IntimeCalc()
-# todays_punch_list = time_cal_obj.smartoffice_login()
-# print('todays_punch_list>>>>>>>>>>>>>>>>>..', todays_punch_list)
-# total_intime, total_outitme = time_cal_obj.calculate_intime(todays_punch_list)
-#
-# net_in_time_seconds = total_intime - (total_outitme - 3600)
-# net_in_time = time_cal_obj.convert_hours(net_in_time_seconds)
-# extra_in_time_required = time_cal_obj.convert_hours(28800 - net_in_time_seconds)
-# last_out_punch_time = time_cal_obj.add_time(28800 - net_in_time_seconds)
-#
-#
-# print('====total_intime======', time_cal_obj.convert_hours(total_intime))
-# print('=====total_outitme=====', time_cal_obj.convert_hours(total_outitme))
-# print('net_in_time>>>>>>>>>>>>>>>>>>>>>>>  ', net_in_time)
-# print('extra_in_time_required>>>>>>>>>>>>>>>>>>>>>>>  ', extra_in_time_required)
-# print('last_out_punch_time>>>>>>>>>>>>>>>>>>>>>>>  ', last_out_punch_time)
-
-
-# time_cal_obj.send_mail()
 
 for user in user_accounts:
     todays_punch_list = time_cal_obj.smartoffice_login(user[0], user[1])

@@ -1,5 +1,12 @@
 from datetime import date, datetime
-import smtplib
+import smtplib, ssl
+
+port = 465  # For SSL
+smtp_server = "smtp.gmail.com"
+sender_email = "akhil@goodbits.in"  # Enter your address
+receiver_email = "akhilviswam000@gmail.com"  # Enter receiver address
+password = "Souparnika@123"
+
 import datetime as main_datetime
 
 today = date.today()
@@ -10,7 +17,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 chrome_options = Options()
-# chrome_options.add_argument('--headless')
+chrome_options.add_argument('--headless')
 chrome_options.add_argument('--no-sandbox')
 chrome_options.add_argument('--disable-dev-shm-usage')
 driver = webdriver.Chrome('/home/akhilvis/Documents/smartoffice/company_time_logger/chromedriver',
@@ -19,7 +26,15 @@ driver = webdriver.Chrome('/home/akhilvis/Documents/smartoffice/company_time_log
 
 url = "http://www.so365.in/Goodbits_ESS"
 
-user_accounts = [('akhil', 'akhil123'), ('krishnaprasad', 'kp123')]
+user_accounts = [
+    ('akhil', 'akhil123', 'akhil@goodbits.in'),
+    ('arjunm', 'arjunm123', 'arjunm@goodbits.in'),
+    ('sathyabhama', 'bhama123', 'sathyabhama@goodbits.in'),
+    ('chrisjo', 'cj123', 'chrisjo@goodbits.in'),
+    ('habeeb', 'habeeb123', 'habeeb@goodbits.in')
+    ('habeeb', 'habeeb123', 'habeeb@goodbits.in')
+    ('krishnaprasad', 'kp123', 'krishnaprasad@goodbits.in')
+]
 
 
 class IntimeCalc:
@@ -103,37 +118,52 @@ class IntimeCalc:
             seconds=0)
         return last_out_time_calculated
 
-    def send_mail(self):
+    def send_mail(self, receiver, total_intime_time_format, total_outtime_time_format, net_in_time,
+                  extra_in_time_required, last_out_punch_time):
 
-        sender_email = "akhilviswam000@gmail.com"
-        rec_email = "akhil@goodbits.in"
-        password = "Soupernika@123"
-        message = "Hey, this was sent using python"
+        message = """\
+        Subject: Net in time alert!!
 
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(sender_email, password)
-        print("Login success")
-        server.sendmail(sender_email, rec_email, message)
-        print("Email has been sent to ", rec_email)
+        Hi {0} ,
+        Based on your last punch recorded {6}
+        Your total in time....   {1}
+        Your total out time....   {2}
+        Your net in time....   {3}
+        Extra time required to complete 8 hours... {4}
+        Your last punch should be.... {5}
+        """.format(receiver, total_intime_time_format, total_outtime_time_format, net_in_time,
+                   extra_in_time_required, last_out_punch_time, self.last_date_obj)
+
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver, message)
 
 
+time_cal_obj = IntimeCalc()
 
 for user in user_accounts:
-    time_cal_obj = IntimeCalc()
-    todays_punch_list = []
-    todays_punch_list = time_cal_obj.smartoffice_login(user[0], user[1])
-    total_intime, total_outitme = time_cal_obj.calculate_intime(todays_punch_list)
+    try:
+        todays_punch_list = []
+        todays_punch_list = time_cal_obj.smartoffice_login(user[0], user[1])
+        total_intime, total_outitme = time_cal_obj.calculate_intime(todays_punch_list)
 
-    net_in_time_seconds = total_intime - (total_outitme - 3600) if total_outitme > 3600 else total_intime
-    net_in_time = time_cal_obj.convert_hours(net_in_time_seconds)
-    extra_in_time_required = time_cal_obj.convert_hours(28800 - net_in_time_seconds)
-    last_out_punch_time = time_cal_obj.add_time(28800 - net_in_time_seconds)
-    print('========================---  {0}  ---========================================'.format(user[0]))
-    print('====total_intime======', time_cal_obj.convert_hours(total_intime))
-    print('=====total_outitme=====', time_cal_obj.convert_hours(total_outitme))
-    print('net_in_time>>>>>>>>>>>>>>>>>>>>>>>  ', net_in_time)
-    print('extra_in_time_required>>>>>>>>>>>>>>>>>>>>>>>  ', extra_in_time_required)
-    print('last_out_punch_time>>>>>>>>>>>>>>>>>>>>>>>  ', last_out_punch_time)
-    print('=============================================================================')
-# time_cal_obj.send_mail()
+        total_intime_time_format = time_cal_obj.convert_hours(total_intime)
+        total_outtime_time_format = time_cal_obj.convert_hours(total_outitme)
+        net_in_time_seconds = total_intime - (total_outitme - 3600) if total_outitme > 3600 else total_intime
+        net_in_time = time_cal_obj.convert_hours(net_in_time_seconds)
+        extra_in_time_required = time_cal_obj.convert_hours(28800 - net_in_time_seconds)
+        last_out_punch_time = time_cal_obj.add_time(28800 - net_in_time_seconds)
+        print('========================---  {0}  ---========================================'.format(user[0]))
+        print('====total_intime======', time_cal_obj.convert_hours(total_intime))
+        print('=====total_outitme=====', time_cal_obj.convert_hours(total_outitme))
+        print('net_in_time>>>>>>>>>>>>>>>>>>>>>>>  ', net_in_time)
+        print('extra_in_time_required>>>>>>>>>>>>>>>>>>>>>>>  ', extra_in_time_required)
+        print('last_out_punch_time>>>>>>>>>>>>>>>>>>>>>>>  ', last_out_punch_time)
+        print('=============================================================================')
+
+        time_cal_obj.send_mail(user[2], total_intime_time_format, total_outtime_time_format, net_in_time,
+                               extra_in_time_required, last_out_punch_time)
+
+    except:
+        pass

@@ -4,8 +4,8 @@ import smtplib, ssl
 port = 465  # For SSL
 smtp_server = "smtp.gmail.com"
 sender_email = "akhil@goodbits.in"  # Enter your address
-receiver_email = "akhilviswam000@gmail.com"  # Enter receiver address
-password = "Souparnika@123"
+receiver_email = "*******@gmail.com"  # Enter receiver address
+password = "******"
 
 import datetime as main_datetime
 
@@ -26,16 +26,8 @@ driver = webdriver.Chrome('/home/akhilvis/Documents/smartoffice/company_time_log
 
 url = "http://www.so365.in/Goodbits_ESS"
 
-user_accounts = [
-    ('akhil', 'akhil123', 'akhil@goodbits.in'),
-    ('arjunm', 'arjunm123', 'arjunm@goodbits.in'),
-    ('sathyabhama', 'bhama123', 'sathyabhama@goodbits.in'),
-    ('chrisjo', 'cj123', 'chrisjo@goodbits.in'),
-    ('habeeb', 'habeeb123', 'habeeb@goodbits.in')
-    ('habeeb', 'habeeb123', 'habeeb@goodbits.in')
-    ('krishnaprasad', 'kp123', 'krishnaprasad@goodbits.in')
-]
 
+user_accounts = [('username', 'password', 'email')]
 
 class IntimeCalc:
 
